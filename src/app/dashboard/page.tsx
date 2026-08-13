@@ -1,11 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { INITIAL_DOCUMENTS, INITIAL_SMART_INSIGHTS } from '@/lib/db/store';
+import { INITIAL_SMART_INSIGHTS } from '@/lib/db/store';
 import AnimatedContent from '@/components/reactbits/AnimatedContent';
 import SpotlightCard from '@/components/reactbits/SpotlightCard';
 import TiltCard from '@/components/reactbits/TiltCard';
-import FadeIn from '@/components/reactbits/FadeIn';
 import BlurText from '@/components/reactbits/BlurText';
 import { motion } from 'motion/react';
 import { useStore } from '@/lib/context/StoreContext';
@@ -40,6 +39,9 @@ const colorMap: Record<string, { icon: string; bg: string; border: string; badge
 
 export default function DashboardPage() {
   const { documents } = useStore();
+  // Only show flagged risks for documents currently in store (not deleted)
+  const activeDocIds = new Set(documents.map((d) => d.id));
+  const filteredInsights = INITIAL_SMART_INSIGHTS.filter((ins) => activeDocIds.has(ins.documentId));
 
   return (
     <div className="space-y-8">
@@ -205,7 +207,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
                 <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono flex items-center gap-1.5">
                   <ShieldAlert className="w-4 h-4 text-rose-400" />
-                  FLAGGED RISKS ({INITIAL_SMART_INSIGHTS.length})
+                  FLAGGED RISKS ({filteredInsights.length})
                 </h3>
                 <Link href="/dashboard/insights" className="text-[11px] text-blue-400 hover:text-blue-300 font-mono transition-colors">
                   Details →
@@ -213,7 +215,7 @@ export default function DashboardPage() {
               </div>
 
               <div className="space-y-3">
-                {INITIAL_SMART_INSIGHTS.slice(0, 3).map((ins, i) => (
+                {filteredInsights.slice(0, 3).map((ins, i) => (
                   <motion.div
                     key={ins.id}
                     initial={{ opacity: 0, y: 10 }}

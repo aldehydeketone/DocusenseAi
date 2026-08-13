@@ -1,26 +1,27 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Logo from '@/components/common/Logo';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Files, 
-  FolderKanban, 
   MessageSquare, 
   GitCompare, 
   Sparkles, 
   Search, 
-  FileText, 
   Settings, 
   Plus, 
-  ShieldAlert
+  ShieldAlert,
+  X,
+  Menu,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/documents', label: 'Documents', icon: Files },
-  { href: '/dashboard/collections', label: 'Collections', icon: FolderKanban },
   { href: '/dashboard/chat', label: 'AI Chat', icon: MessageSquare },
   { href: '/dashboard/extract', label: 'Extract Data', icon: Sparkles },
   { href: '/dashboard/compare', label: 'Compare', icon: GitCompare },
@@ -29,20 +30,28 @@ const NAV_ITEMS = [
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];
 
-export default function Sidebar({ onOpenUpload }: { onOpenUpload?: () => void }) {
+function SidebarContent({ onOpenUpload, onClose }: { onOpenUpload?: () => void; onClose?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 glass-panel border-r border-slate-800/80 bg-slate-950/95 flex flex-col h-screen sticky top-0 z-40">
+    <div className="flex flex-col h-full">
       {/* Brand Header */}
       <div className="p-4 border-b border-slate-800/80 flex items-center justify-between">
         <Logo size="sm" />
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors lg:hidden"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Upload Action CTA */}
       <div className="p-3">
         <button
-          onClick={onOpenUpload}
+          onClick={() => { onOpenUpload?.(); onClose?.(); }}
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium text-xs py-2.5 px-3 rounded-xl shadow-lg shadow-blue-600/20 transition-all hover:scale-[1.01] active:scale-[0.99]"
         >
           <Plus className="w-4 h-4 text-blue-200" />
@@ -60,13 +69,14 @@ export default function Sidebar({ onOpenUpload }: { onOpenUpload?: () => void })
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+              onClick={onClose}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
                 isActive
                   ? 'bg-blue-600/15 text-blue-400 border border-blue-500/20 font-semibold'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-blue-400' : 'text-slate-400'}`} />
+              <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-blue-400' : 'text-slate-400'}`} />
               {item.label}
             </Link>
           );
@@ -87,6 +97,56 @@ export default function Sidebar({ onOpenUpload }: { onOpenUpload?: () => void })
           <span className="text-emerald-400 font-mono">100% Vector Indexed</span>
         </div>
       </div>
-    </aside>
+    </div>
+  );
+}
+
+export default function Sidebar({ onOpenUpload }: { onOpenUpload?: () => void }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <>
+      {/* Mobile Hamburger Button */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-slate-900/95 border border-slate-800 text-slate-300 hover:text-white shadow-xl transition-colors"
+        aria-label="Open navigation menu"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      {/* Mobile Overlay Backdrop */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMobileOpen(false)}
+            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Slide-in Drawer */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.aside
+            initial={{ x: -280 }}
+            animate={{ x: 0 }}
+            exit={{ x: -280 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="lg:hidden fixed left-0 top-0 bottom-0 w-72 glass-panel border-r border-slate-800/80 bg-slate-950/98 z-50 shadow-2xl"
+          >
+            <SidebarContent onOpenUpload={onOpenUpload} onClose={() => setMobileOpen(false)} />
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Static Sidebar */}
+      <aside className="hidden lg:flex w-64 glass-panel border-r border-slate-800/80 bg-slate-950/95 flex-col h-screen sticky top-0 z-40">
+        <SidebarContent onOpenUpload={onOpenUpload} />
+      </aside>
+    </>
   );
 }

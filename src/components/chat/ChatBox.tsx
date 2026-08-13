@@ -25,18 +25,33 @@ interface ChatBoxProps {
 
 export default function ChatBox({ documents, selectedDocId }: ChatBoxProps) {
   const [selectedDocs, setSelectedDocs] = useState<string[]>(selectedDocId ? [selectedDocId] : []);
+
+  // Build dynamic follow-up suggestions based on the documents available
+  const buildWelcomeFollowups = (docs: Document[]): string[] => {
+    if (docs.length === 0) return ['Upload a document to get started'];
+    const suggestions: string[] = [];
+    for (const doc of docs.slice(0, 3)) {
+      if (doc.title.toLowerCase().includes('invoice') || doc.title.toLowerCase().includes('inv-')) {
+        suggestions.push(`What is the total amount due in "${doc.title}"?`);
+      } else if (doc.title.toLowerCase().includes('agreement') || doc.title.toLowerCase().includes('contract')) {
+        suggestions.push(`Summarize the key clauses in "${doc.title}"`);
+      } else if (doc.title.toLowerCase().includes('research') || doc.title.toLowerCase().includes('paper') || doc.title.toLowerCase().includes('docusense')) {
+        suggestions.push(`What are the main findings of "${doc.title}"?`);
+      } else {
+        suggestions.push(`Give me a summary of "${doc.title}"`);
+      }
+    }
+    return suggestions;
+  };
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome-1',
       conversationId: 'conv-default',
       sender: 'assistant',
-      content: 'Welcome to DocuSense AI Document Chat! Ask any question about your uploaded documents, contracts, research papers, or invoices. Every answer is grounded strictly in source content with page-level citations.',
+      content: 'Welcome to DocuSense AI Document Chat! Ask any question about your uploaded documents. Every answer is grounded strictly in source content with page-level citations.',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      suggestedFollowups: [
-        'Summarize the key findings in the TCET paper',
-        'Compare base salary and non-compete clauses',
-        'What are the upcoming invoice due dates?',
-      ],
+      suggestedFollowups: buildWelcomeFollowups(documents),
     },
   ]);
   const [input, setInput] = useState('');

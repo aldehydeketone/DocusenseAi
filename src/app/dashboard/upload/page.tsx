@@ -96,10 +96,10 @@ export default function DocumentUploadPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 px-0 lg:px-0">
       {/* Header */}
       <AnimatedContent direction="up">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start sm:items-center justify-between gap-4 flex-col sm:flex-row">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-mono text-blue-400 mb-2">
               <UploadCloud className="w-3.5 h-3.5" /> Pipeline Indexer v2.4
@@ -114,9 +114,9 @@ export default function DocumentUploadPage() {
 
           <Link
             href="/dashboard"
-            className="text-xs text-slate-400 hover:text-white font-mono flex items-center gap-1 transition-colors"
+            className="text-xs text-slate-400 hover:text-white font-mono flex items-center gap-1 transition-colors shrink-0"
           >
-            ← Back to Repository
+            ← Back to Dashboard
           </Link>
         </div>
       </AnimatedContent>
@@ -124,7 +124,7 @@ export default function DocumentUploadPage() {
       {/* Main Upload Box */}
       <AnimatedContent delay={0.1} direction="up">
         <SpotlightCard
-          className="glass-panel p-8 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden"
+          className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden"
           spotlightColor="rgba(59,130,246,0.08)"
         >
           {!selectedFile ? (
@@ -134,7 +134,7 @@ export default function DocumentUploadPage() {
               onDragOver={handleDrag}
               onDragLeave={handleDrag}
               onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all cursor-pointer ${
+              className={`border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all cursor-pointer ${
                 dragActive
                   ? 'border-blue-500 bg-blue-950/20 scale-[1.01]'
                   : 'border-slate-800 hover:border-slate-700 bg-slate-950/40'
@@ -156,28 +156,29 @@ export default function DocumentUploadPage() {
                 </motion.div>
                 <div className="space-y-1">
                   <p className="text-base font-bold text-white">
-                    Drag &amp; drop document file here, or <span className="text-blue-400 underline">browse</span>
+                    Drag &amp; drop your document here, or <span className="text-blue-400 underline">browse files</span>
                   </p>
                   <p className="text-xs text-slate-400 font-mono">
-                    Supports PDF, DOCX, TXT, CSV up to 50MB per file
+                    Supports PDF, DOCX, TXT, CSV — up to 50MB per file
                   </p>
                 </div>
-                <div className="pt-2 flex items-center justify-center gap-6 text-[11px] font-mono text-slate-400">
+                <div className="pt-2 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-[11px] font-mono text-slate-400">
                   <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-emerald-400" /> AES-256 Encrypted</span>
                   <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-purple-400" /> Auto OCR &amp; RAG</span>
+                  <span className="flex items-center gap-1.5"><Database className="w-3.5 h-3.5 text-blue-400" /> pgvector Indexed</span>
                 </div>
               </label>
             </div>
           ) : (
             /* Selected File Pipeline Control */
             <div className="space-y-8">
-              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900/80 border border-slate-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 font-mono font-bold text-xs">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900/80 border border-slate-800 gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 font-mono font-bold text-xs shrink-0">
                     {selectedFile.name.split('.').pop()?.toUpperCase() || 'FILE'}
                   </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-white">{selectedFile.name}</h3>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-bold text-white truncate">{selectedFile.name}</h3>
                     <p className="text-xs text-slate-400 font-mono">
                       {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • Ready for ingestion
                     </p>
@@ -187,7 +188,7 @@ export default function DocumentUploadPage() {
                 {!isProcessing && !isComplete && (
                   <button
                     onClick={() => setSelectedFile(null)}
-                    className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                    className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors shrink-0"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -199,7 +200,7 @@ export default function DocumentUploadPage() {
                 <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono flex items-center justify-between">
                   <span>Processing Pipeline Stage</span>
                   <span className="text-blue-400 font-normal">
-                    {isComplete ? '100% Indexed' : isProcessing ? `Stage ${currentStageIndex + 1} of 4` : 'Awaiting Ingestion'}
+                    {isComplete ? '✅ 100% Indexed' : isProcessing ? `Stage ${currentStageIndex + 1} of 4` : 'Awaiting Ingestion'}
                   </span>
                 </h4>
 
@@ -236,11 +237,11 @@ export default function DocumentUploadPage() {
               </div>
 
               {/* Actions */}
-              <div className="pt-4 flex items-center justify-end gap-4 border-t border-slate-800">
+              <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 border-t border-slate-800">
                 {!isProcessing && !isComplete && (
                   <button
                     onClick={startPipelineProcessing}
-                    className="px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-lg shadow-blue-600/30 flex items-center gap-2 transition-all hover:scale-[1.02]"
+                    className="w-full sm:w-auto px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
                   >
                     <Sparkles className="w-4 h-4" />
                     Start Document Ingestion Pipeline
@@ -249,11 +250,11 @@ export default function DocumentUploadPage() {
 
                 {isComplete && (
                   <Link
-                    href="/dashboard/documents/doc-tcet-paper"
-                    className="px-7 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-lg shadow-emerald-600/30 flex items-center gap-2 transition-all hover:scale-[1.02]"
+                    href="/dashboard/documents"
+                    className="w-full sm:w-auto px-7 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
                   >
                     <FileCheck className="w-4 h-4" />
-                    Open Document in Split Workspace
+                    View in Documents Library
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 )}
@@ -264,30 +265,24 @@ export default function DocumentUploadPage() {
         </SpotlightCard>
       </AnimatedContent>
 
-      {/* Preset Documents Quick Indexing */}
+      {/* Supported Formats Info */}
       <AnimatedContent delay={0.2} direction="up">
-        <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-purple-400" />
-            Quick Demo File Presets
+        <div className="glass-panel p-5 rounded-2xl border border-slate-800">
+          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono mb-3 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-blue-400" />
+            Supported File Formats & Processing Capabilities
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { name: 'Master_Service_Agreement.pdf', type: 'Legal MSA', pages: '14 Pages', id: 'doc-tcet-paper' },
-              { name: 'Q4_Financial_Audit_2025.pdf', type: 'Financial 10-K', pages: '42 Pages', id: 'doc-tcet-paper' },
-              { name: 'Clinical_Trial_Phase3.pdf', type: 'Biomedical Paper', pages: '28 Pages', id: 'doc-tcet-paper' },
-            ].map((preset, i) => (
-              <Link
-                key={i}
-                href={`/dashboard/documents/${preset.id}`}
-                className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-blue-500/30 flex items-center justify-between text-xs transition-colors group"
-              >
-                <div className="truncate">
-                  <div className="font-semibold text-slate-200 group-hover:text-blue-400 truncate">{preset.name}</div>
-                  <div className="text-[10px] text-slate-400 font-mono mt-0.5">{preset.type} • {preset.pages}</div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-blue-400 shrink-0" />
-              </Link>
+              { ext: 'PDF', desc: 'Scanned & native PDFs, tables, charts', color: 'text-rose-400 border-rose-500/30 bg-rose-500/10' },
+              { ext: 'DOCX', desc: 'Word documents, formatting preserved', color: 'text-blue-400 border-blue-500/30 bg-blue-500/10' },
+              { ext: 'TXT', desc: 'Plain text, fast direct indexing', color: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' },
+              { ext: 'CSV', desc: 'Tabular data, structured extraction', color: 'text-purple-400 border-purple-500/30 bg-purple-500/10' },
+            ].map((fmt) => (
+              <div key={fmt.ext} className={`p-3 rounded-xl border text-center ${fmt.color}`}>
+                <div className="font-mono font-bold text-sm mb-1">.{fmt.ext}</div>
+                <div className="text-[10px] opacity-80 leading-tight">{fmt.desc}</div>
+              </div>
             ))}
           </div>
         </div>

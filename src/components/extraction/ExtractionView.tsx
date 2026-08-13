@@ -15,42 +15,79 @@ export default function ExtractionView({ documents }: ExtractionViewProps) {
 
   const activeDoc = documents.find((d) => d.id === selectedDocId) || documents[0];
 
-  // Schema extract result data
+  // Dynamically build extraction results from the selected document
+  const getContractData = (doc: typeof activeDoc) => {
+    if (!doc) return {};
+    const isContract = doc.title.toLowerCase().includes('agreement') || doc.title.toLowerCase().includes('contract');
+    if (!isContract) return {
+      documentTitle: doc.title,
+      documentType: doc.fileType.toUpperCase(),
+      author: doc.author || 'Unknown',
+      pageCount: `${doc.pageCount} Pages`,
+      fileSize: `${(doc.fileSize / 1024 / 1024).toFixed(2)} MB`,
+      note: 'Select a contract/agreement document for full clause extraction.',
+    };
+    // Parse from summaryQuick if available
+    const salaryLine = doc.summaryQuick?.find(s => s.toLowerCase().includes('salary') || s.toLowerCase().includes('$'));
+    const nonCompeteLine = doc.summaryQuick?.find(s => s.toLowerCase().includes('non-compete') || s.toLowerCase().includes('compete'));
+    const noticeLine = doc.summaryQuick?.find(s => s.toLowerCase().includes('notice') || s.toLowerCase().includes('termination'));
+    return {
+      contractTitle: doc.title,
+      author: doc.author || 'Legal Team',
+      documentPages: `${doc.pageCount} Pages`,
+      baseSalaryAndComp: salaryLine || doc.summaryTldr || 'See document for details',
+      nonCompeteClause: nonCompeteLine || 'See Section on Restrictive Covenants',
+      terminationNotice: noticeLine || 'See Section on Termination',
+      lastProcessed: doc.processedAt ? new Date(doc.processedAt).toLocaleDateString() : 'N/A',
+    };
+  };
+
+  const getInvoiceData = (doc: typeof activeDoc) => {
+    if (!doc) return {};
+    const isInvoice = doc.title.toLowerCase().includes('invoice') || doc.title.toLowerCase().includes('inv-');
+    if (!isInvoice) return {
+      documentTitle: doc.title,
+      documentType: doc.fileType.toUpperCase(),
+      note: 'Select an invoice document for full billing extraction.',
+    };
+    const totalLine = doc.summaryQuick?.find(s => s.toLowerCase().includes('total') || s.toLowerCase().includes('amount') || s.toLowerCase().includes('$'));
+    const dueLine = doc.summaryQuick?.find(s => s.toLowerCase().includes('due') || s.toLowerCase().includes('september') || s.toLowerCase().includes('date'));
+    return {
+      invoiceTitle: doc.title,
+      vendor: doc.author || 'Vendor',
+      invoiceId: doc.fileName.replace('.pdf',''),
+      pageCount: `${doc.pageCount} Pages`,
+      totalAmount: totalLine || doc.summaryTldr || 'See document',
+      paymentDue: dueLine || 'See document',
+      processedAt: doc.processedAt ? new Date(doc.processedAt).toLocaleDateString() : 'N/A',
+    };
+  };
+
+  const getResearchData = (doc: typeof activeDoc) => {
+    if (!doc) return {};
+    const isResearch = doc.author?.includes('Singh') || doc.title.toLowerCase().includes('docusense') || doc.title.toLowerCase().includes('research');
+    if (!isResearch) return {
+      documentTitle: doc.title,
+      note: 'Select a research paper for academic extraction.',
+    };
+    return {
+      paperTitle: doc.title,
+      authors: doc.author || 'Unknown Authors',
+      pageCount: `${doc.pageCount} Pages`,
+      chunkCount: `${doc.chunkCount} Semantic Chunks`,
+      purpose: doc.summaryExec?.purpose || doc.summaryTldr || 'See document',
+      keyFindings: doc.summaryExec?.findings?.join(' | ') || (doc.summaryQuick?.slice(0,2).join(' | ')) || 'See document',
+      risks: doc.summaryExec?.risks?.join(', ') || 'See document',
+      recommendations: doc.summaryExec?.recommendations?.join(', ') || 'See document',
+      uploadedAt: doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : 'N/A',
+    };
+  };
+
+  // Schema extract result data - dynamically from selected document
   const extractionResults = {
-    contract: {
-      contractTitle: activeDoc?.title || 'Executive Employment Agreement',
-      contractingParties: ['Acme Corp (Employer)', 'John Doe (Executive)'],
-      effectiveDate: '2026-09-01',
-      baseSalary: '$280,000 USD / year',
-      performanceBonus: 'Up to 20% annual base salary',
-      nonCompeteDuration: '12 Months post-termination',
-      terminationNotice: '60 Calendar Days written notice',
-      governingLaw: 'State of Delaware',
-      renewalTerms: 'Automatic 1-year annual renewal unless terminated 60 days prior',
-    },
-    invoice: {
-      vendorName: 'TechSolutions Corp',
-      billedTo: 'Acme Corp',
-      invoiceNumber: 'INV-2026-089',
-      invoiceDate: '2026-08-12',
-      paymentDueDate: '2026-08-15',
-      subtotal: '$13,500.00 USD',
-      taxAmount: '$1,350.00 USD (10%)',
-      totalAmountDue: '$14,850.00 USD',
-      lineItems: [
-        'Dedicated Enterprise GPU Cluster — $9,000.00',
-        'pgvector Vector Search Cluster — $4,500.00',
-      ],
-    },
-    research: {
-      paperTitle: 'DocuSense AI: An AI-Powered Document Intelligence and Reasoning Platform',
-      authors: ['Prathamesh Singh', 'Vedant Singh', 'Mihir Singh'],
-      institution: 'Thakur College of Engineering and Technology (TCET), Univ of Mumbai',
-      publicationYear: '2024 / 2026',
-      methodology: ['OCR Extraction', 'NLP Tokenization', 'LayoutLMv3', 'RAG Engine', 'Vector DB'],
-      benchmarkedPapers: '15 High-Quality IEEE/ACM Studies',
-      keyFindings: 'Hybrid vector + keyword search reduces retrieval latency and hallucination by 42%.',
-    },
+    contract: getContractData(activeDoc),
+    invoice: getInvoiceData(activeDoc),
+    research: getResearchData(activeDoc),
   };
 
   const currentData = extractionResults[schemaType];

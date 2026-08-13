@@ -13,7 +13,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       <Sidebar onOpenUpload={() => setIsUploadOpen(true)} />
       <div className="flex-1 flex flex-col min-w-0">
         <TopNav />
-        <main className="flex-1 p-6 overflow-y-auto">{children}</main>
+        <main className="flex-1 p-4 lg:p-6 pt-16 lg:pt-6 overflow-y-auto">{children}</main>
       </div>
 
       <UploadModal
