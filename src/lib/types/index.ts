@@ -78,6 +78,7 @@ export interface Conversation {
   createdAt: string;
   updatedAt: string;
   lastMessage?: string;
+  messages?: Message[];
 }
 
 export interface ExtractionSchemaField {

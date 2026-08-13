@@ -74,16 +74,21 @@ export const addConversationMessage = (conversationId: string, message: Message)
   const convIndex = conversations.findIndex((c) => c.id === conversationId);
   
   if (convIndex !== -1) {
-    conversations[convIndex].messages.push(message);
-    conversations[convIndex].updatedAt = new Date().toISOString();
+    const conv = conversations[convIndex];
+    if (!conv.messages) {
+      conv.messages = [];
+    }
+    conv.messages.push(message);
+    conv.updatedAt = new Date().toISOString();
   } else {
     conversations.unshift({
       id: conversationId,
-      title: message.text.slice(0, 30) + '...',
+      title: message.content.slice(0, 30) + '...',
       messages: [message],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       workspaceId: 'ws-default',
+      documentIds: [],
     });
   }
   saveConversations(conversations);
