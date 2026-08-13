@@ -1,0 +1,13 @@
+{
+  "$schema": "https://jsrepo.dev/schema.json",
+  "repos": [
+    "https://reactbits.dev/r"
+  ],
+  "watermark": true,
+  "formatter": "prettier",
+  "paths": {
+    "components": "./src/components/reactbits",
+    "lib": "./src/lib",
+    "hooks": "./src/hooks"
+  }
+}
