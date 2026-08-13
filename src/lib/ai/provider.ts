@@ -103,9 +103,9 @@ export class AIProvider {
 
     let answerBody = '';
     if (queryLower.includes('salary') || queryLower.includes('compensation') || queryLower.includes('bonus')) {
-      answerBody = `Based on the executive employment agreements [1], Executive base compensation is specified as **$280,000 USD** annually at Acme Corp (with up to 20% performance bonus) [1], whereas BetaTech offers **$310,000 USD** with 50,000 RSUs [2].`;
+      answerBody = `Based on the executive employment agreements [1], Executive base compensation is specified as **$280,000 USD** annually at Nexasoft Technologies (with up to 20% performance bonus) [1], whereas BetaTech Inc. offers **$310,000 USD** with 50,000 RSUs [2].`;
     } else if (queryLower.includes('non-compete') || queryLower.includes('restrictive')) {
-      answerBody = `The non-compete clauses differ significantly between documents [1]: Acme Corp specifies a **12-month** non-compete duration post-termination [1], while BetaTech specifies a **24-month** nationwide non-compete covenant [2].`;
+      answerBody = `The non-compete clauses differ significantly between documents [1]: Nexasoft Technologies specifies a **12-month** non-compete duration post-termination [1], while BetaTech Inc. specifies a **24-month** nationwide non-compete covenant [2].`;
     } else if (queryLower.includes('paper') || queryLower.includes('tcet') || queryLower.includes('docusense') || queryLower.includes('architecture')) {
       answerBody = `According to the DocuSense AI research paper by Prathamesh Singh, Vedant Singh, and Mihir Singh (TCET, Univ of Mumbai) [1], the system architecture consists of 5 core layers: Document Collection, Preprocessing (OCR/NLP), Information Extraction, Document Analysis/Classification, and Intelligent RAG Retrieval Engine [1]. Key research gaps identified include complex layout parsing, OCR errors, retrieval latency, and model hallucination [2].`;
     } else if (queryLower.includes('invoice') || queryLower.includes('due') || queryLower.includes('amount') || queryLower.includes('pay')) {

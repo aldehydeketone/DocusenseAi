@@ -64,8 +64,8 @@ export const INITIAL_DOCUMENTS: Document[] = [
   },
   {
     id: 'doc-contract-a',
-    title: 'Executive Employment Agreement — Acme Corp & John Doe',
-    fileName: 'Executive_Employment_Agreement_Acme.pdf',
+    title: 'Executive Employment Agreement — Nexasoft Technologies & Arjun Mehta',
+    fileName: 'Executive_Employment_Agreement_Nexasoft.pdf',
     fileSize: 1120000,
     fileType: 'pdf',
     pageCount: 8,
@@ -75,18 +75,18 @@ export const INITIAL_DOCUMENTS: Document[] = [
     processedAt: '2026-08-11T11:21:40Z',
     collectionId: 'col-2',
     workspaceId: 'ws-default',
-    author: 'Acme Legal Team',
+    author: 'Nexasoft Legal Team',
     summaryQuick: [
-      'Employment agreement for Chief Technology Officer role at Acme Corp.',
+      'Employment agreement for Chief Technology Officer role at Nexasoft Technologies Pvt. Ltd.',
       'Base salary set at $280,000 USD per annum with 20% annual performance bonus.',
       'Non-compete clause duration set to 12 months post-termination.',
       'Termination notice period requires 60 days written notice by either party.',
     ],
-    summaryTldr: 'Executive agreement for CTO position outlining $280,000 base compensation, 12-month non-compete, and 60-day notice period.',
+    summaryTldr: 'Executive agreement for CTO position at Nexasoft Technologies outlining $280,000 base compensation, 12-month non-compete, and 60-day notice period.',
   },
   {
     id: 'doc-contract-b',
-    title: 'Executive Employment Agreement — BetaTech & John Doe (Draft B)',
+    title: 'Executive Employment Agreement — BetaTech Inc. & Arjun Mehta (Draft B)',
     fileName: 'Executive_Employment_Agreement_BetaTech.pdf',
     fileSize: 980000,
     fileType: 'pdf',
@@ -104,7 +104,7 @@ export const INITIAL_DOCUMENTS: Document[] = [
       'Non-compete clause duration set to 24 months nationwide.',
       'Termination notice period requires 30 days written notice.',
     ],
-    summaryTldr: 'BetaTech employment agreement offering $310k base salary + 50k RSUs with a stricter 24-month non-compete clause.',
+    summaryTldr: 'BetaTech Inc. employment agreement for Arjun Mehta offering $310k base salary + 50k RSUs with a stricter 24-month non-compete clause.',
   },
   {
     id: 'doc-invoice-101',
@@ -175,7 +175,7 @@ export const INITIAL_CHUNKS: DocumentChunk[] = [
   {
     id: 'chunk-ca-1',
     documentId: 'doc-contract-a',
-    documentTitle: 'Executive Employment Agreement — Acme Corp',
+    documentTitle: 'Executive Employment Agreement — Nexasoft Technologies',
     pageNumber: 2,
     sectionTitle: 'Section 3: Compensation and Bonus',
     chunkIndex: 1,
@@ -185,7 +185,7 @@ export const INITIAL_CHUNKS: DocumentChunk[] = [
   {
     id: 'chunk-ca-2',
     documentId: 'doc-contract-a',
-    documentTitle: 'Executive Employment Agreement — Acme Corp',
+    documentTitle: 'Executive Employment Agreement — Nexasoft Technologies',
     pageNumber: 5,
     sectionTitle: 'Section 7: Restrictive Covenants & Non-Compete',
     chunkIndex: 2,
@@ -195,7 +195,7 @@ export const INITIAL_CHUNKS: DocumentChunk[] = [
   {
     id: 'chunk-ca-3',
     documentId: 'doc-contract-a',
-    documentTitle: 'Executive Employment Agreement — Acme Corp',
+    documentTitle: 'Executive Employment Agreement — Nexasoft Technologies',
     pageNumber: 7,
     sectionTitle: 'Section 10: Termination & Notice',
     chunkIndex: 3,
@@ -206,7 +206,7 @@ export const INITIAL_CHUNKS: DocumentChunk[] = [
   {
     id: 'chunk-cb-1',
     documentId: 'doc-contract-b',
-    documentTitle: 'Executive Employment Agreement — BetaTech',
+    documentTitle: 'Executive Employment Agreement — BetaTech Inc.',
     pageNumber: 2,
     sectionTitle: 'Section 3: Compensation & Stock Options',
     chunkIndex: 1,
@@ -216,7 +216,7 @@ export const INITIAL_CHUNKS: DocumentChunk[] = [
   {
     id: 'chunk-cb-2',
     documentId: 'doc-contract-b',
-    documentTitle: 'Executive Employment Agreement — BetaTech',
+    documentTitle: 'Executive Employment Agreement — BetaTech Inc.',
     pageNumber: 5,
     sectionTitle: 'Section 8: Non-Compete Covenant',
     chunkIndex: 2,
@@ -231,7 +231,7 @@ export const INITIAL_CHUNKS: DocumentChunk[] = [
     pageNumber: 1,
     sectionTitle: 'Invoice Summary & Line Items',
     chunkIndex: 1,
-    text: 'TechSolutions Corp Invoice #INV-2026-089. Invoice Date: August 12, 2026. Payment Due Date: September 15, 2026. Billed To: Acme Corp. Subtotal: $13,500.00. Tax (10%): $1,350.00. Total Amount Due: $14,850.00 USD.',
+    text: 'TechSolutions Corp Invoice #INV-2026-089. Invoice Date: August 12, 2026. Payment Due Date: September 15, 2026. Billed To: Nexasoft Technologies Pvt. Ltd. Subtotal: $13,500.00. Tax (10%): $1,350.00. Total Amount Due: $14,850.00 USD.',
     tokenCount: 52,
   },
 ];
@@ -245,7 +245,7 @@ export const INITIAL_SMART_INSIGHTS: SmartInsight[] = [
     label: 'Payment Due Date',
     value: 'September 15, 2026',
     pageNumber: 1,
-    contextSnippet: 'Payment Due Date: September 15, 2026. Billed To: Acme Corp.',
+    contextSnippet: 'Payment Due Date: September 15, 2026. Billed To: Nexasoft Technologies Pvt. Ltd.',
     severity: 'high',
   },
   {
@@ -273,7 +273,7 @@ export const INITIAL_SMART_INSIGHTS: SmartInsight[] = [
   {
     id: 'ins-4',
     documentId: 'doc-contract-a',
-    documentTitle: 'Executive Employment Agreement — Acme Corp',
+    documentTitle: 'Executive Employment Agreement — Nexasoft Technologies',
     category: 'financial',
     label: 'Base Compensation',
     value: '$280,000 USD / year',

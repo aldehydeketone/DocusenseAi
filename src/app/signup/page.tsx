@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation';
 import { FileText, Lock, Mail, User, Building, ArrowRight } from 'lucide-react';
 
 export default function SignupPage() {
-  const [name, setName] = useState('John Doe');
-  const [email, setEmail] = useState('john@acmecorp.com');
-  const [workspace, setWorkspace] = useState('Acme Corp Workspace');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [workspace, setWorkspace] = useState('');
   const router = useRouter();
 
   const handleSignup = (e: React.FormEvent) => {

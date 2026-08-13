@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Search, Bell, ShieldCheck, User, ChevronDown, Sparkles } from 'lucide-react';
 
 export default function TopNav() {
-  const [workspace, setWorkspace] = useState('Acme Corp Workspace');
+  const [workspace, setWorkspace] = useState('DocuSense Workspace');
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
 
   return (
@@ -25,10 +25,10 @@ export default function TopNav() {
           <div className="absolute left-0 mt-2 w-56 glass-panel rounded-xl shadow-xl p-1.5 border border-slate-800 text-xs z-50">
             <div className="px-2 py-1.5 font-semibold text-[10px] text-slate-500 uppercase">Workspaces</div>
             <button
-              onClick={() => { setWorkspace('Acme Corp Workspace'); setShowWorkspaceMenu(false); }}
+              onClick={() => { setWorkspace('DocuSense Workspace'); setShowWorkspaceMenu(false); }}
               className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center justify-between"
             >
-              Acme Corp Workspace
+              DocuSense Workspace
               <span className="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">Active</span>
             </button>
             <button
@@ -67,10 +67,10 @@ export default function TopNav() {
 
         <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-blue-500 p-0.5 flex items-center justify-center text-white text-xs font-bold shadow-md">
-            JD
+            AM
           </div>
           <div className="hidden md:flex flex-col text-xs text-left">
-            <span className="font-semibold text-slate-200">John Doe</span>
+            <span className="font-semibold text-slate-200">Arjun Mehta</span>
             <span className="text-[10px] text-slate-400">Workspace Owner</span>
           </div>
         </div>
