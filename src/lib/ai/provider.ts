@@ -1,5 +1,6 @@
 import { Document, DocumentChunk, Citation, Message, DocumentDifference } from '../types';
 import { INITIAL_DOCUMENTS, INITIAL_CHUNKS } from '../db/store';
+import { getGeminiKey } from '../db/clientStore';
 
 export interface RAGQueryResult {
   answer: string;
@@ -122,6 +123,7 @@ export class AIProvider {
         body: JSON.stringify({
           query: safeInput,
           documentContext,
+          apiKey: getGeminiKey(),
           chunks: topMatches.map((m) => ({
             text: m.chunk.text,
             documentTitle: m.chunk.documentTitle,

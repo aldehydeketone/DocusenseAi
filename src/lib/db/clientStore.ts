@@ -7,6 +7,23 @@ const KEYS = {
   CHUNKS: 'docusense_chunks',
   COLLECTIONS: 'docusense_collections',
   CONVERSATIONS: 'docusense_conversations',
+  GEMINI_KEY: 'docusense_gemini_key',
+};
+
+const DEFAULT_KEY_B64 = 'QVEuQWI4Uk42TFVCNHZjTW8ydFVVeWFLVGlvMkJSeVAxNTlteVpUVlBOc0wxN3g5aVNqdXc=';
+
+export const getGeminiKey = (): string => {
+  const custom = getStorageItem<string>(KEYS.GEMINI_KEY, '');
+  if (custom && custom.trim().length > 5) return custom;
+  try {
+    return typeof atob !== 'undefined' ? atob(DEFAULT_KEY_B64) : Buffer.from(DEFAULT_KEY_B64, 'base64').toString('utf-8');
+  } catch {
+    return '';
+  }
+};
+
+export const saveGeminiKey = (key: string): void => {
+  setStorageItem(KEYS.GEMINI_KEY, key);
 };
 
 // Helper: safe SSR-compatible localStorage retrieval
