@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Document, Message, Citation } from '@/lib/types';
 import { AIProvider } from '@/lib/ai/provider';
+import { getChunks } from '@/lib/db/clientStore';
 import { 
   Send, 
   Sparkles, 
@@ -28,6 +29,17 @@ export default function ChatBox({ documents, selectedDocId }: ChatBoxProps) {
 
   // Build dynamic follow-up suggestions based on the documents available
   const buildWelcomeFollowups = (docs: Document[]): string[] => {
+    if (selectedDocId) {
+      const activeDoc = docs.find((d) => d.id === selectedDocId);
+      if (activeDoc) {
+        return [
+          `Summarize "${activeDoc.title}"`,
+          `What are the main findings or directives in "${activeDoc.title}"?`,
+          `Extract key specifications, dates, or numbers from this document`,
+        ];
+      }
+    }
+
     if (docs.length === 0) return ['Upload a document to get started'];
     const suggestions: string[] = [];
     for (const doc of docs.slice(0, 3)) {
@@ -75,7 +87,8 @@ export default function ChatBox({ documents, selectedDocId }: ChatBoxProps) {
     setLoading(true);
 
     try {
-      const ragResult = await AIProvider.queryDocuments(queryText, selectedDocs);
+      const allChunks = getChunks();
+      const ragResult = await AIProvider.queryDocuments(queryText, selectedDocs, allChunks, documents);
 
       const botMsg: Message = {
         id: `msg-bot-${Date.now()}`,
@@ -299,7 +312,7 @@ export default function ChatBox({ documents, selectedDocId }: ChatBoxProps) {
           <span className="flex items-center gap-1">
             <ShieldCheck className="w-3 h-3 text-emerald-400" /> Prompt Injection Defensive Shield Active
           </span>
-          <span>DocuSense AI RAG v2.4</span>
+          <span>DocuSense AI + Gemini 2.0 Flash</span>
         </div>
       </div>
     </div>

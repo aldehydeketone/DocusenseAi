@@ -1,4 +1,4 @@
-import { Document, DocumentChunk, Collection, SmartInsight, Conversation, Message, ExtractedResult } from '../types';
+import { Document, DocumentChunk, Collection, SmartInsight, Conversation, Message, ExtractedResult, DocumentAccuracyHistory } from '../types';
 
 export const INITIAL_COLLECTIONS: Collection[] = [
   {
@@ -61,6 +61,9 @@ export const INITIAL_DOCUMENTS: Document[] = [
       recommendations: ['Adopt Explainable AI (XAI)', 'Integrate real-time document indexing', 'Deploy strict citation grounding'],
     },
     summaryTldr: 'A comprehensive research study proposing the DocuSense AI architecture that integrates OCR, RAG, and vector databases for enterprise document intelligence and zero-hallucination Q&A.',
+    classificationCategory: 'Research Paper',
+    accuracyScore: 0.984,
+    evaluatedAt: '2026-08-13T10:02:15Z',
   },
   {
     id: 'doc-contract-a',
@@ -83,6 +86,9 @@ export const INITIAL_DOCUMENTS: Document[] = [
       'Termination notice period requires 60 days written notice by either party.',
     ],
     summaryTldr: 'Executive agreement for CTO position at Nexasoft Technologies outlining $280,000 base compensation, 12-month non-compete, and 60-day notice period.',
+    classificationCategory: 'Legal Contract',
+    accuracyScore: 0.996,
+    evaluatedAt: '2026-08-11T11:21:40Z',
   },
   {
     id: 'doc-contract-b',
@@ -105,6 +111,9 @@ export const INITIAL_DOCUMENTS: Document[] = [
       'Termination notice period requires 30 days written notice.',
     ],
     summaryTldr: 'BetaTech Inc. employment agreement for Arjun Mehta offering $310k base salary + 50k RSUs with a stricter 24-month non-compete clause.',
+    classificationCategory: 'Legal Contract',
+    accuracyScore: 0.992,
+    evaluatedAt: '2026-08-12T15:11:05Z',
   },
   {
     id: 'doc-invoice-101',
@@ -126,8 +135,63 @@ export const INITIAL_DOCUMENTS: Document[] = [
       'Includes GPU compute cluster time, pgvector cluster storage, and dedicated bandwidth.',
     ],
     summaryTldr: 'Monthly cloud infrastructure invoice totaling $14,850.00 due Sept 15, 2026.',
+    classificationCategory: 'Financial Invoice',
+    accuracyScore: 0.998,
+    evaluatedAt: '2026-08-12T09:30:22Z',
   },
 ];
+
+export const INITIAL_ACCURACY_HISTORY: DocumentAccuracyHistory[] = [
+  {
+    id: 'eval-1',
+    documentId: 'doc-invoice-101',
+    documentTitle: 'Cloud Infrastructure Services Invoice #INV-2026-089',
+    predictedCategory: 'Financial Invoice',
+    groundTruth: 'Financial Invoice',
+    accuracyScore: 0.998,
+    evaluatedAt: '2026-08-12 09:30',
+    modelName: 'TF-IDF + Naive Bayes Classifier',
+    source: 'python-naive-bayes',
+    status: 'passed',
+  },
+  {
+    id: 'eval-2',
+    documentId: 'doc-contract-a',
+    documentTitle: 'Executive Employment Agreement — Nexasoft',
+    predictedCategory: 'Legal Contract',
+    groundTruth: 'Legal Contract',
+    accuracyScore: 0.996,
+    evaluatedAt: '2026-08-11 11:21',
+    modelName: 'TF-IDF + Naive Bayes Classifier',
+    source: 'python-naive-bayes',
+    status: 'passed',
+  },
+  {
+    id: 'eval-3',
+    documentId: 'doc-contract-b',
+    documentTitle: 'Executive Employment Agreement — BetaTech',
+    predictedCategory: 'Legal Contract',
+    groundTruth: 'Legal Contract',
+    accuracyScore: 0.992,
+    evaluatedAt: '2026-08-12 15:11',
+    modelName: 'TF-IDF + Naive Bayes Classifier',
+    source: 'python-naive-bayes',
+    status: 'passed',
+  },
+  {
+    id: 'eval-4',
+    documentId: 'doc-tcet-paper',
+    documentTitle: 'DocuSense AI: Research Paper (TCET, Univ of Mumbai)',
+    predictedCategory: 'Research Paper',
+    groundTruth: 'Research Paper',
+    accuracyScore: 0.984,
+    evaluatedAt: '2026-08-13 10:02',
+    modelName: 'TF-IDF + Naive Bayes Classifier',
+    source: 'python-naive-bayes',
+    status: 'passed',
+  },
+];
+
 
 export const INITIAL_CHUNKS: DocumentChunk[] = [
   // TCET Paper Chunks

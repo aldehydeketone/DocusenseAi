@@ -217,4 +217,23 @@ def run_evaluation():
     print("=" * 70)
 
 if __name__ == "__main__":
-    run_evaluation()
+    import json as _json
+
+    if len(sys.argv) >= 3 and sys.argv[1] == "--classify":
+        # Called from Next.js /api/classify route
+        # Usage: python ml/train_and_evaluate.py --classify "document text here"
+        text_to_classify = " ".join(sys.argv[2:])
+
+        clf = TFIDFNaiveBayesClassifier()
+        clf.train(TRAINING_DATA)
+
+        pred_label, confidence, all_probs = clf.predict(text_to_classify)
+        result = {
+            "predicted_class": pred_label,
+            "confidence": round(confidence, 4),
+            "all_scores": {cls: round(prob, 4) for cls, prob in all_probs},
+        }
+        # Print JSON on its own line so the route handler can parse it
+        print(_json.dumps(result))
+    else:
+        run_evaluation()

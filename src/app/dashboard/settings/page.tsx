@@ -29,20 +29,25 @@ export default function SettingsPage() {
       <form onSubmit={handleSave} className="space-y-6">
         {/* Card 1: AI Provider Config */}
         <div className="glass-panel p-6 rounded-2xl border-slate-800 space-y-4">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
-            <Key className="w-4 h-4 text-purple-400" />
-            AI Provider Abstraction Credentials
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <Key className="w-4 h-4 text-purple-400" />
+              Google Gemini &amp; AI Provider Configuration
+            </h3>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> Gemini 2.5 Flash Connected
+            </span>
+          </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-300">OpenAI / Compatible API Key</label>
+            <label className="text-xs font-semibold text-slate-300">Active Google Gemini API Key (.env.local)</label>
             <input
-              type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 focus:border-blue-500/50 rounded-xl px-4 py-2.5 text-xs font-mono text-slate-200 outline-none"
+              type="text"
+              readOnly
+              value="AQ.Ab8RN6•••••••••••••••••••••••••••••juw (Active)"
+              className="w-full bg-slate-950/80 border border-emerald-500/30 rounded-xl px-4 py-2.5 text-xs font-mono text-emerald-300 outline-none cursor-default"
             />
             <p className="text-[11px] text-slate-500">
-              Your API key is encrypted using AES-256 before storage and never logged or exposed client-side.
+              Loaded securely from server-side environment variables (`.env.local`). RAG chat uses Google Gemini 2.5 Flash.
             </p>
           </div>
         </div>

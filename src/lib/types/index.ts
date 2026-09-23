@@ -47,6 +47,22 @@ export interface Document {
   };
   summaryDetailed?: { section: string; summary: string }[];
   summaryTldr?: string;
+  classificationCategory?: string;
+  accuracyScore?: number;
+  evaluatedAt?: string;
+}
+
+export interface DocumentAccuracyHistory {
+  id: string;
+  documentId: string;
+  documentTitle: string;
+  predictedCategory: string;
+  groundTruth?: string;
+  accuracyScore: number;
+  evaluatedAt: string;
+  modelName: string;
+  source: 'python-naive-bayes' | 'gemini-ai' | 'js-engine';
+  status: 'passed' | 'review_needed';
 }
 
 export interface Citation {

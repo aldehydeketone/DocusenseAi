@@ -1,11 +1,10 @@
-'use client';
-
-import { Document, Collection, Conversation, Message } from '../types';
-import { INITIAL_DOCUMENTS, INITIAL_COLLECTIONS } from './store';
+import { Document, DocumentChunk, Collection, Conversation, Message, DocumentAccuracyHistory } from '../types';
+import { INITIAL_DOCUMENTS, INITIAL_CHUNKS, INITIAL_COLLECTIONS, INITIAL_ACCURACY_HISTORY } from './store';
 
 // Client-side local storage key names
 const KEYS = {
   DOCUMENTS: 'docusense_docs',
+  CHUNKS: 'docusense_chunks',
   COLLECTIONS: 'docusense_collections',
   CONVERSATIONS: 'docusense_conversations',
 };
@@ -53,6 +52,19 @@ export const addDocument = (doc: Document): void => {
   saveDocuments(docs);
 };
 
+export const getChunks = (): DocumentChunk[] => {
+  return getStorageItem<DocumentChunk[]>(KEYS.CHUNKS, INITIAL_CHUNKS);
+};
+
+export const saveChunks = (chunks: DocumentChunk[]): void => {
+  setStorageItem(KEYS.CHUNKS, chunks);
+};
+
+export const addChunks = (newChunks: DocumentChunk[]): void => {
+  const current = getChunks();
+  saveChunks([...newChunks, ...current]);
+};
+
 export const getCollections = (): Collection[] => {
   return getStorageItem<Collection[]>(KEYS.COLLECTIONS, INITIAL_COLLECTIONS);
 };
@@ -92,4 +104,12 @@ export const addConversationMessage = (conversationId: string, message: Message)
     });
   }
   saveConversations(conversations);
+};
+
+export const getAccuracyHistory = (): DocumentAccuracyHistory[] => {
+  return getStorageItem<DocumentAccuracyHistory[]>('docusense_accuracy_history', INITIAL_ACCURACY_HISTORY);
+};
+
+export const saveAccuracyHistory = (history: DocumentAccuracyHistory[]): void => {
+  setStorageItem('docusense_accuracy_history', history);
 };

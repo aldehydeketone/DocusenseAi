@@ -49,9 +49,26 @@ export default function UploadModal({ isOpen, onClose, onUploadSuccess }: Upload
     setProgress(10);
     setStatus('uploading');
 
+    let extractedText = '';
+    try {
+      if (file.type.includes('text') || file.name.endsWith('.txt') || file.name.endsWith('.csv') || file.name.endsWith('.md')) {
+        extractedText = await file.text();
+      } else {
+        // Read text preview from PDF or other document format
+        const slice = file.slice(0, 100000);
+        const raw = await slice.text();
+        const clean = raw.replace(/[^\x20-\x7E\n\r\t]/g, ' ').replace(/\s{2,}/g, ' ');
+        if (clean.length > 50) {
+          extractedText = clean.slice(0, 4000);
+        }
+      }
+    } catch {
+      // Fallback to title-based chunking
+    }
+
     try {
       const processedDoc = await ProcessingPipeline.processDocument(
-        { name: file.name, size: file.size, type: file.type },
+        { name: file.name, size: file.size, type: file.type, content: extractedText },
         (currentStatus, currentProgress) => {
           setStatus(currentStatus);
           setProgress(currentProgress);
