@@ -1,25 +1,28 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest } from 'next/server';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { query, documentContext, chunks } = body as {
+    const { query, documentContext, chunks, apiKey: clientApiKey } = body as {
       query: string;
       documentContext: string;
       chunks: Array<{ text: string; documentTitle: string; pageNumber: number; sectionTitle?: string; documentId: string }>;
+      apiKey?: string;
     };
 
     if (!query?.trim()) {
       return Response.json({ error: 'Query is required' }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || clientApiKey;
     if (!apiKey) {
-      return Response.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
+      return Response.json({ 
+        error: 'GEMINI_API_KEY is not set. Please add GEMINI_API_KEY in Vercel Dashboard -> Settings -> Environment Variables or .env.local' 
+      }, { status: 500 });
     }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
 
     // Build context from document chunks
     const chunkContext = chunks && chunks.length > 0
@@ -84,7 +87,7 @@ ${chunkContext}`;
       pageNumber: chunk.pageNumber,
       sectionTitle: chunk.sectionTitle,
       snippet: chunk.text.slice(0, 200),
-      confidence: Math.min(0.98, 0.82 + idx * 0.02),
+      confidence: Math.min(0.98, 0.85 + idx * 0.03),
     }));
 
     return Response.json({
@@ -95,7 +98,7 @@ ${chunkContext}`;
         'Extract all dates and deadlines',
         'Summarize the main risks or obligations',
       ],
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
     });
   } catch (error: unknown) {
     console.error('[/api/chat] Gemini error:', error);
