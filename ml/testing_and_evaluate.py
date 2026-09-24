@@ -20,7 +20,7 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
         pass
 
 # Expanded Benchmark Dataset for Document Classification (64 Training Samples across 4 Classes)
-TRAINING_DATA = [
+TESTING_DATA = [
     # ── CLASS 0: LEGAL CONTRACT (16 Samples) ──────────────────────────────────────────
     ("This Executive Employment Agreement is entered into between Nexasoft Technologies and the Executive. Governing law shall be California. Non-compete covenant duration is 12 months post-termination with 60 days written notice.", "Legal Contract"),
     ("Master Services Agreement and non-disclosure agreement. Parties agree to indemnification, confidentiality clauses, and arbitration in case of breach of contract.", "Legal Contract"),
@@ -95,7 +95,7 @@ TRAINING_DATA = [
 ]
 
 # Benchmark Test Data (8 Representative Samples)
-TEST_DATA = [
+TEST_DATA [
     ("Executive employment agreement with $310,000 salary, restrictive covenant non-compete for 24 months, and termination severance terms.", "Legal Contract"),
     ("Invoice INV-8821 total amount due $19,500.00 USD. Subtotal $18,000 plus tax, payment due September 30, 2026.", "Financial Invoice"),
     ("Abstract: A comparative evaluation of transformer embeddings on scientific literature QA. Methodology, dataset, and precision-recall benchmark results.", "Research Paper"),
