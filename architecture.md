@@ -4,7 +4,8 @@ This document defines the hybrid AI architecture, serverless route handlers, cla
 
 ---
 
-## 1. High-Level Hybrid Architecture
+## 1. Professional Enterprise 5-Tier Architecture
+![DocuSense AI Enterprise Architecture](./public/docusense_enterprise_architecture.jpg)
 
 ```mermaid
 flowchart TD
