@@ -2,7 +2,22 @@
 
 import { useState } from 'react';
 import { SmartInsight, Document } from '@/lib/types';
-import { ShieldAlert, Calendar, DollarSign, Users, AlertTriangle, FileText, ChevronDown, Cpu, CheckCircle2 } from 'lucide-react';
+import { 
+  ShieldAlert, 
+  Calendar, 
+  DollarSign, 
+  Users, 
+  AlertTriangle, 
+  FileText, 
+  ChevronDown, 
+  Cpu, 
+  CheckCircle2,
+  Download,
+  BarChart2,
+  Sparkles,
+  TrendingUp,
+  Layers
+} from 'lucide-react';
 
 interface InsightsViewProps {
   insights: SmartInsight[];
@@ -12,6 +27,7 @@ interface InsightsViewProps {
 export default function InsightsView({ insights, documents = [] }: InsightsViewProps) {
   // Default to 'all' to show all, or filter by document ID
   const [selectedDocId, setSelectedDocId] = useState<string>('all');
+  const [viewTab, setViewTab] = useState<'grid' | 'analytics'>('grid');
 
   const filteredInsights = selectedDocId === 'all'
     ? insights
@@ -21,6 +37,22 @@ export default function InsightsView({ insights, documents = [] }: InsightsViewP
   const financial = filteredInsights.filter((i) => i.category === 'financial');
   const entities = filteredInsights.filter((i) => i.category === 'entity');
   const risks = filteredInsights.filter((i) => i.category === 'risk');
+
+  const totalCount = filteredInsights.length;
+  const riskPct = totalCount ? Math.round((risks.length / totalCount) * 100) : 0;
+  const finPct = totalCount ? Math.round((financial.length / totalCount) * 100) : 0;
+  const datePct = totalCount ? Math.round((dates.length / totalCount) * 100) : 0;
+  const entPct = totalCount ? Math.round((entities.length / totalCount) * 100) : 0;
+
+  const handleExportJSON = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(filteredInsights, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `docusense_insights_audit_${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
 
   return (
     <div className="space-y-6">
@@ -38,57 +70,106 @@ export default function InsightsView({ insights, documents = [] }: InsightsViewP
               </span>
             </div>
             <p className="text-[11px] text-slate-400 font-mono">
-              Token-level sequence classification • Precision: 89.2% • Recall: 87.9%
+              Token-level sequence classification • Precision: 89.2% • Recall: 87.9% • spaCy Gazetteer
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 text-[11px] font-mono text-slate-400">
-          <span className="flex items-center gap-1 text-emerald-400">
-            <CheckCircle2 className="w-3.5 h-3.5" /> 100% Extracted via ML
-          </span>
-          <span className="hidden md:inline">• Latency: 12ms</span>
-        </div>
-      </div>
-
-      {/* Disclaimer Banner */}
-      <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-3">
-        <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <span className="font-bold text-amber-300">AI Risk &amp; Insight Disclosure:</span>
-          <p className="text-[11px] text-amber-200/80 leading-relaxed">
-            DocuSense AI automatically flags dates, financial terms, entities, and potential risk clauses via our sequence tagger model. Always verify flagged obligations with licensed legal or financial counsel.
-          </p>
-        </div>
-      </div>
-
-      {/* Document Filter Selector */}
-      <div className="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex items-center gap-2 shrink-0">
-          <FileText className="w-4 h-4 text-blue-400" />
-          <span className="text-xs font-semibold text-slate-300">Filter Insights by Document:</span>
-        </div>
-        <div className="relative flex-1 max-w-sm">
-          <select
-            value={selectedDocId}
-            onChange={(e) => setSelectedDocId(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 hover:border-blue-500/40 focus:border-blue-500/60 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none appearance-none pr-8 transition-colors"
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportJSON}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-mono transition-colors"
+            title="Download JSON structured audit report"
           >
-            <option value="all">All Documents ({insights.length} insights)</option>
-            {documents.map((doc) => {
-              const count = insights.filter((i) => i.documentId === doc.id).length;
-              return (
-                <option key={doc.id} value={doc.id}>
-                  {doc.title} ({count} insights)
-                </option>
-              );
-            })}
-          </select>
-          <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-2.5 pointer-events-none" />
+            <Download className="w-3.5 h-3.5 text-indigo-400" />
+            Export Audit JSON
+          </button>
         </div>
-        <span className="text-[11px] text-slate-500 font-mono shrink-0">
-          Showing {filteredInsights.length} insight{filteredInsights.length !== 1 ? 's' : ''}
-        </span>
+      </div>
+
+      {/* Visual Analytics Summary Ribbon */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono text-rose-400 uppercase font-semibold">Flagged Risks</span>
+            <ShieldAlert className="w-4 h-4 text-rose-400" />
+          </div>
+          <div className="text-2xl font-extrabold text-white font-mono">{risks.length}</div>
+          <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div className="bg-rose-500 h-full rounded-full" style={{ width: `${riskPct}%` }}></div>
+          </div>
+          <span className="text-[10px] text-slate-500 font-mono">{riskPct}% of total insights</span>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono text-emerald-400 uppercase font-semibold">Financial Terms</span>
+            <DollarSign className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div className="text-2xl font-extrabold text-white font-mono">{financial.length}</div>
+          <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${finPct}%` }}></div>
+          </div>
+          <span className="text-[10px] text-slate-500 font-mono">{finPct}% of total insights</span>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono text-blue-400 uppercase font-semibold">Key Deadlines</span>
+            <Calendar className="w-4 h-4 text-blue-400" />
+          </div>
+          <div className="text-2xl font-extrabold text-white font-mono">{dates.length}</div>
+          <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div className="bg-blue-500 h-full rounded-full" style={{ width: `${datePct}%` }}></div>
+          </div>
+          <span className="text-[10px] text-slate-500 font-mono">{datePct}% of total insights</span>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono text-purple-400 uppercase font-semibold">Entities &amp; Orgs</span>
+            <Users className="w-4 h-4 text-purple-400" />
+          </div>
+          <div className="text-2xl font-extrabold text-white font-mono">{entities.length}</div>
+          <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div className="bg-purple-500 h-full rounded-full" style={{ width: `${entPct}%` }}></div>
+          </div>
+          <span className="text-[10px] text-slate-500 font-mono">{entPct}% of total insights</span>
+        </div>
+      </div>
+
+      {/* Document Filter Selector & View Switcher */}
+      <div className="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3 flex-1">
+          <div className="flex items-center gap-2 shrink-0">
+            <FileText className="w-4 h-4 text-blue-400" />
+            <span className="text-xs font-semibold text-slate-300">Filter Document:</span>
+          </div>
+          <div className="relative flex-1 max-w-sm">
+            <select
+              value={selectedDocId}
+              onChange={(e) => setSelectedDocId(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 hover:border-blue-500/40 focus:border-blue-500/60 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none appearance-none pr-8 transition-colors"
+            >
+              <option value="all">All Documents ({insights.length} total insights)</option>
+              {documents.map((doc) => {
+                const count = insights.filter((i) => i.documentId === doc.id).length;
+                return (
+                  <option key={doc.id} value={doc.id}>
+                    {doc.title} ({count} insights)
+                  </option>
+                );
+              })}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-2.5 pointer-events-none" />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-slate-400 font-mono">
+            {filteredInsights.length} total extracted entities
+          </span>
+        </div>
       </div>
 
       {filteredInsights.length === 0 ? (

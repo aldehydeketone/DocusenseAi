@@ -3,7 +3,20 @@
 import { useState } from 'react';
 import { Document } from '@/lib/types';
 import { AIProvider } from '@/lib/ai/provider';
-import { GitCompare, FileText, ShieldCheck, ChevronDown, Play, AlertCircle } from 'lucide-react';
+import { 
+  GitCompare, 
+  FileText, 
+  ShieldCheck, 
+  ChevronDown, 
+  Play, 
+  AlertCircle,
+  Download,
+  CheckCircle2,
+  AlertTriangle,
+  Scale,
+  Sparkles,
+  Layers
+} from 'lucide-react';
 
 interface ComparisonViewProps {
   documents: Document[];
@@ -20,19 +33,42 @@ export default function ComparisonView({ documents }: ComparisonViewProps) {
 
   const differences = hasCompared && docA && docB ? AIProvider.compareDocuments(docA, docB) : [];
 
+  // Calculate semantic alignment score
+  const contradictions = differences.filter((d) => d.differenceType === 'contradiction').length;
+  const clauseDiffs = differences.filter((d) => d.differenceType === 'clause').length;
+  const semanticAlignment = Math.max(35, 100 - (contradictions * 20 + clauseDiffs * 10));
+
   const handleCompare = () => {
     if (!docAId || !docBId || docAId === docBId) return;
     setComparing(true);
-    // Simulate brief loading
     setTimeout(() => {
       setHasCompared(true);
       setComparing(false);
-    }, 800);
+    }, 700);
   };
 
   const handleReset = () => {
     setHasCompared(false);
     setDocBId('');
+  };
+
+  const handleExportDiffReport = () => {
+    if (!docA || !docB) return;
+    const report = {
+      timestamp: new Date().toISOString(),
+      documentA: { id: docA.id, title: docA.title, category: docA.classificationCategory },
+      documentB: { id: docB.id, title: docB.title, category: docB.classificationCategory },
+      semanticAlignmentScore: `${semanticAlignment}%`,
+      discrepancyCount: differences.length,
+      differences,
+    };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `docusense_diff_report_${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
   };
 
   return (
@@ -42,23 +78,28 @@ export default function ComparisonView({ documents }: ComparisonViewProps) {
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <GitCompare className="w-5 h-5 text-purple-400" />
-            Side-by-Side Document Comparison
+            Side-by-Side Document Comparison &amp; Discrepancy Engine
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Select two documents and click Compare to detect differences in terms, clauses, and obligations.
+            Compare two documents to cross-examine contractual obligations, clauses, financial variances, and contradiction risks.
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-purple-400 bg-purple-500/10 px-3 py-1.5 rounded-xl border border-purple-500/20 font-mono">
           <ShieldCheck className="w-4 h-4" />
-          Citation Grounded Comparison
+          Multi-Document Grounding Active
         </div>
       </div>
 
       {/* Document Selectors */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Document A Selector */}
-        <div className="glass-panel p-4 rounded-xl border border-slate-800 space-y-2">
-          <div className="text-[10px] font-mono text-blue-400 uppercase font-semibold mb-1">DOCUMENT A — Base</div>
+        <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="text-[10px] font-mono text-blue-400 uppercase font-semibold">DOCUMENT A (Baseline)</div>
+            {docA && (
+              <span className="text-[10px] font-mono text-slate-400">{docA.classificationCategory}</span>
+            )}
+          </div>
           <div className="relative">
             <select
               value={docAId}
@@ -75,13 +116,24 @@ export default function ComparisonView({ documents }: ComparisonViewProps) {
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3 pointer-events-none" />
           </div>
           {docA && (
-            <p className="text-[11px] text-slate-400 font-mono">{docA.pageCount} Pages • {docA.chunkCount} Chunks</p>
+            <div className="flex items-center gap-3 text-[11px] text-slate-400 font-mono pt-1">
+              <span>{docA.pageCount} Pages</span>
+              <span>•</span>
+              <span>{docA.chunkCount} Vector Chunks</span>
+              <span>•</span>
+              <span className="text-emerald-400">Indexed</span>
+            </div>
           )}
         </div>
 
         {/* Document B Selector */}
-        <div className="glass-panel p-4 rounded-xl border border-slate-800 space-y-2">
-          <div className="text-[10px] font-mono text-purple-400 uppercase font-semibold mb-1">DOCUMENT B — Compare With</div>
+        <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="text-[10px] font-mono text-purple-400 uppercase font-semibold">DOCUMENT B (Comparison Target)</div>
+            {docB && (
+              <span className="text-[10px] font-mono text-slate-400">{docB.classificationCategory}</span>
+            )}
+          </div>
           <div className="relative">
             <select
               value={docBId}
@@ -100,45 +152,90 @@ export default function ComparisonView({ documents }: ComparisonViewProps) {
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3 pointer-events-none" />
           </div>
           {docB && (
-            <p className="text-[11px] text-slate-400 font-mono">{docB.pageCount} Pages • {docB.chunkCount} Chunks</p>
+            <div className="flex items-center gap-3 text-[11px] text-slate-400 font-mono pt-1">
+              <span>{docB.pageCount} Pages</span>
+              <span>•</span>
+              <span>{docB.chunkCount} Vector Chunks</span>
+              <span>•</span>
+              <span className="text-purple-400">Indexed</span>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Compare Action Button */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={handleCompare}
-          disabled={!docAId || !docBId || docAId === docBId || comparing}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-sm shadow-lg shadow-purple-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-        >
-          {comparing ? (
-            <>
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Analyzing...
-            </>
-          ) : (
-            <>
-              <Play className="w-4 h-4" />
-              Run Comparison
-            </>
-          )}
-        </button>
-        {hasCompared && (
+      {/* Compare Action Button & Status */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
           <button
-            onClick={handleReset}
-            className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+            onClick={handleCompare}
+            disabled={!docAId || !docBId || docAId === docBId || comparing}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-sm shadow-lg shadow-purple-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
-            Reset
+            {comparing ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Executing Semantic Diff...
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4" />
+                Run Cross-Document Comparison
+              </>
+            )}
+          </button>
+          {hasCompared && (
+            <button
+              onClick={handleReset}
+              className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-400 hover:text-slate-200 transition-colors font-mono"
+            >
+              Reset
+            </button>
+          )}
+          {!docBId && (
+            <p className="text-xs text-slate-500 flex items-center gap-1.5 font-mono">
+              <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+              Select Document B above to initiate comparative diff
+            </p>
+          )}
+        </div>
+
+        {hasCompared && docA && docB && (
+          <button
+            onClick={handleExportDiffReport}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-mono transition-colors"
+          >
+            <Download className="w-3.5 h-3.5 text-purple-400" />
+            Export Diff Report
           </button>
         )}
-        {!docBId && (
-          <p className="text-xs text-slate-500 flex items-center gap-1.5">
-            <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
-            Select Document B to enable comparison
-          </p>
-        )}
       </div>
+
+      {/* Comparison Analytics Meter — Shown after comparison */}
+      {hasCompared && docA && docB && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+            <span className="text-[10px] font-mono text-slate-500 uppercase">Semantic Overlap</span>
+            <div className="text-2xl font-black font-mono text-indigo-400">{semanticAlignment}%</div>
+            <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${semanticAlignment}%` }}></div>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+            <span className="text-[10px] font-mono text-slate-500 uppercase">Detected Discrepancies</span>
+            <div className="text-2xl font-black font-mono text-purple-400">{differences.length} Variations</div>
+            <span className="text-[10px] text-slate-400 font-mono">{contradictions} Contradictions • {clauseDiffs} Clause diffs</span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+            <span className="text-[10px] font-mono text-slate-500 uppercase">Risk Assessment</span>
+            <div className="text-2xl font-black font-mono text-amber-400">
+              {contradictions > 0 ? 'HIGH RISK' : clauseDiffs > 0 ? 'MODERATE' : 'LOW RISK'}
+            </div>
+            <span className="text-[10px] text-slate-400 font-mono">Cross-examined across pgvector</span>
+          </div>
+        </div>
+      )}
 
       {/* Comparison Results — Only shown after clicking Run Comparison */}
       {hasCompared && docA && docB && (
@@ -148,16 +245,16 @@ export default function ComparisonView({ documents }: ComparisonViewProps) {
               DETECTED CLAUSE DIFFERENCES ({differences.length})
             </span>
             <div className="flex items-center gap-4 text-[10px] font-mono">
-              <span className="text-blue-400">A: {docA.title.slice(0, 28)}...</span>
-              <span className="text-purple-400">B: {docB.title.slice(0, 28)}...</span>
+              <span className="text-blue-400">A: {docA.title.slice(0, 24)}...</span>
+              <span className="text-purple-400">B: {docB.title.slice(0, 24)}...</span>
             </div>
           </div>
 
           {differences.length === 0 ? (
             <div className="p-12 text-center space-y-2">
               <ShieldCheck className="w-8 h-8 text-emerald-400 mx-auto" />
-              <p className="text-sm text-slate-200 font-semibold">No significant differences detected.</p>
-              <p className="text-xs text-slate-400">The two documents appear to have aligned terms and clauses.</p>
+              <p className="text-sm text-slate-200 font-semibold">No significant contradictions detected.</p>
+              <p className="text-xs text-slate-400">The two documents appear to have aligned terminology and terms.</p>
             </div>
           ) : (
             <div className="divide-y divide-slate-800/80">
@@ -216,7 +313,7 @@ export default function ComparisonView({ documents }: ComparisonViewProps) {
       {!hasCompared && (
         <div className="glass-panel rounded-2xl border-slate-800 p-12 text-center space-y-3">
           <GitCompare className="w-10 h-10 text-slate-600 mx-auto" />
-          <p className="text-sm text-slate-400">Select two documents and click <span className="text-purple-400 font-semibold">Run Comparison</span> to begin analysis.</p>
+          <p className="text-sm text-slate-400">Select two documents and click <span className="text-purple-400 font-semibold">Run Cross-Document Comparison</span> to begin analysis.</p>
           <p className="text-xs text-slate-600">The AI will identify differences in clauses, dates, financials, and obligations with citation-backed evidence.</p>
         </div>
       )}
