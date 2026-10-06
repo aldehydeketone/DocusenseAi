@@ -1,15 +1,19 @@
 """
-DocuSense AI -- Expanded Machine Learning Training & Evaluation Pipeline
-========================================================================
+DocuSense AI -- Real-Time & Incremental Machine Learning Pipeline
+===================================================================
 Academic Project: Thakur College of Engineering & Technology (TCET), University of Mumbai
-Component: Document Classification (TF-IDF + Naive Bayes) & Named Entity Recognition (NER)
+Component: Document Classification (TF-IDF + Naive Bayes) & Real-Time Dynamic Learning Buffer
 
 Usage:
     python ml/train_and_evaluate.py
+    python ml/train_and_evaluate.py --classify "text"
+    python ml/train_and_evaluate.py --ingest "text" "label"
 """
 
 import sys
 import math
+import json
+import os
 from collections import Counter, defaultdict
 
 # Ensure UTF-8 output on Windows terminals
@@ -19,8 +23,10 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
     except Exception:
         pass
 
-# Expanded Benchmark Dataset for Document Classification (64 Training Samples across 4 Classes)
-TRAINING_DATA = [
+LIVE_DATA_FILE = os.path.join(os.path.dirname(__file__), "live_dataset.json")
+
+# ── BASE BENCHMARK DATASET (64 Ground Truth Samples) ──────────────────────────────────
+BASE_TRAINING_DATA = [
     # ── CLASS 0: LEGAL CONTRACT (16 Samples) ──────────────────────────────────────────
     ("This Executive Employment Agreement is entered into between Nexasoft Technologies and the Executive. Governing law shall be California. Non-compete covenant duration is 12 months post-termination with 60 days written notice.", "Legal Contract"),
     ("Master Services Agreement and non-disclosure agreement. Parties agree to indemnification, confidentiality clauses, and arbitration in case of breach of contract.", "Legal Contract"),
@@ -106,6 +112,35 @@ TEST_DATA = [
     ("System requirements specification: API gateway throughput 5,000 req/sec with sub-20ms p99 response latency.", "Technical Specification"),
 ]
 
+def load_training_data():
+    """Load base dataset merged with real-time dynamic uploaded documents."""
+    data = list(BASE_TRAINING_DATA)
+    if os.path.exists(LIVE_DATA_FILE):
+        try:
+            with open(LIVE_DATA_FILE, 'r', encoding='utf-8') as f:
+                live_items = json.load(f)
+                for item in live_items:
+                    if isinstance(item, dict) and 'text' in item and 'label' in item:
+                        data.append((item['text'], item['label']))
+        except Exception as e:
+            sys.stderr.write(f"Warning: Could not read live_dataset.json: {e}\n")
+    return data
+
+def ingest_live_document(text, label):
+    """Store new real-time document text into live_dataset.json for online training."""
+    live_items = []
+    if os.path.exists(LIVE_DATA_FILE):
+        try:
+            with open(LIVE_DATA_FILE, 'r', encoding='utf-8') as f:
+                live_items = json.load(f)
+        except Exception:
+            live_items = []
+
+    live_items.append({"text": text, "label": label, "ingested_at": str(os.getenv("CURRENT_TIME", "realtime"))})
+    with open(LIVE_DATA_FILE, 'w', encoding='utf-8') as f:
+        json.dump(live_items, f, indent=2)
+    return len(live_items)
+
 def tokenize(text):
     words = [w.lower().strip(".,()[]{}:;\"'$#") for w in text.split() if len(w) > 2]
     bigrams = [f"{words[i]}_{words[i+1]}" for i in range(len(words)-1)]
@@ -162,30 +197,29 @@ class TFIDFNaiveBayesClassifier:
         return sorted_res[0][0], sorted_res[0][1], sorted_res
 
 def run_evaluation():
+    training_data = load_training_data()
     print("=" * 70)
     print("  DocuSense AI -- Machine Learning Pipeline Training & Evaluation")
     print("  Thakur College of Engineering & Technology (TCET), Mumbai")
     print("=" * 70)
-    print(f"[*] Training Documents: {len(TRAINING_DATA)}")
-    print(f"[*] Testing Documents:  {len(TEST_DATA)}")
-    print(f"[*] Target Classes:     4 Classes")
+    print(f"[*] Base Dataset Documents: {len(BASE_TRAINING_DATA)}")
+    print(f"[*] Real-Time Dynamic Ingested: {len(training_data) - len(BASE_TRAINING_DATA)}")
+    print(f"[*] Total Training Documents:   {len(training_data)}")
+    print(f"[*] Testing Documents:          {len(TEST_DATA)}")
+    print(f"[*] Target Classes:             4 Classes")
 
     clf = TFIDFNaiveBayesClassifier()
-    clf.train(TRAINING_DATA)
-    print("[+] Model Trained: TF-IDF + Multinomial Naive Bayes Classifier")
+    clf.train(training_data)
+    print("[+] Model Trained: Real-Time Dynamic TF-IDF + Naive Bayes")
     print(f"[+] Total Vocabulary Size: {len(clf.vocab)} unique features\n")
 
     print("-" * 70)
     print("  TEST SET PREDICTION & CLASSIFICATION EVALUATION")
     print("-" * 70)
     correct = 0
-    y_true = []
-    y_pred = []
 
     for idx, (text, actual) in enumerate(TEST_DATA, 1):
         pred_label, conf, _ = clf.predict(text)
-        y_true.append(actual)
-        y_pred.append(pred_label)
         is_correct = (pred_label == actual)
         if is_correct:
             correct += 1
@@ -198,78 +232,27 @@ def run_evaluation():
     accuracy = (correct / len(TEST_DATA)) * 100
     print(f"==> Overall Test Accuracy: {accuracy:.1f}%\n")
 
-    # Print Formal Metrics Table
-    print("=" * 70)
-    print("  FORMAL MODEL PERFORMANCE REPORT (Benchmark Baseline)")
-    print("=" * 70)
-    print(f"{'Class / Metric':<26} | {'Precision':<10} | {'Recall':<10} | {'F1-Score':<10}")
-    print("-" * 70)
-    metrics = [
-        ("Legal Contract", "0.941", "0.923", "0.932"),
-        ("Financial Invoice", "0.952", "0.940", "0.946"),
-        ("Research Paper", "0.960", "0.980", "0.970"),
-        ("Technical Specification", "0.925", "0.910", "0.917"),
-    ]
-    for row in metrics:
-        print(f"{row[0]:<26} | {row[1]:<10} | {row[2]:<10} | {row[3]:<10}")
-    print("-" * 70)
-    print(f"{'MACRO AVERAGE':<26} | {'0.944':<10} | {'0.938':<10} | {'0.941':<10}")
-    print(f"{'OVERALL ACCURACY':<26} | {'--':<10} | {'--':<10} | {'93.8%':<10}")
-    print("=" * 70)
-
-    # Confusion Matrix
-    print("\n  CONFUSION MATRIX (Evaluation on 200 benchmark test instances):")
-    print("  Rows = Ground Truth | Columns = Predicted")
-    print("               [Contract] [Invoice] [Research] [TechSpec]")
-    print("  Contract         48        1         0          1")
-    print("  Invoice           2       47         0          1")
-    print("  Research          0        0        50          0")
-    print("  TechSpec          1        1         1         47")
-    print("=" * 70)
-
-    # Named Entity Recognition (NER) Demonstration
-    print("\n" + "=" * 70)
-    print("  NAMED ENTITY RECOGNITION (NER) EXTRACTION DEMONSTRATION")
-    print("=" * 70)
-    sample_ner_text = (
-        "Under Executive Agreement with Nexasoft Technologies, Executive Arjun Mehta "
-        "shall receive base salary of $280,000 USD. Invoice INV-2026-089 for $14,850.00 "
-        "is payable by September 15, 2026. A non-compete period of 24 months applies."
-    )
-    print(f"Input Document Excerpt:\n\"{sample_ner_text}\"\n")
-    print("Extracted Named Entities:")
-    extracted = [
-        ("Nexasoft Technologies", "ORG", "0.938"),
-        ("Arjun Mehta", "PERSON", "0.894"),
-        ("$280,000 USD", "MONEY", "0.942"),
-        ("INV-2026-089", "INVOICE_ID", "0.965"),
-        ("$14,850.00", "MONEY", "0.942"),
-        ("September 15, 2026", "DATE", "0.915"),
-        ("24 months", "DATE/PERIOD", "0.920"),
-        ("non-compete", "RISK_CLAUSE", "0.887"),
-    ]
-    for ent, label, conf in extracted:
-        print(f"  * {ent:<24} -> Tag: [{label:<12}]  (Confidence: {float(conf)*100:.1f}%)")
-
-    print("\n[*] NER Model Architecture: Token Sequence Labeler + Context Gazetteer (spaCy)")
-    print("[*] NER Evaluation Metrics:  Precision: 89.2% | Recall: 87.9% | F1-Score: 88.6%")
-    print("=" * 70)
-
 if __name__ == "__main__":
-    import json as _json
-
-    if len(sys.argv) >= 3 and sys.argv[1] == "--classify":
+    if len(sys.argv) >= 4 and sys.argv[1] == "--ingest":
+        # Ingest real-time document text: python ml/train_and_evaluate.py --ingest "text" "label"
+        text_arg = sys.argv[2]
+        label_arg = sys.argv[3]
+        total_live = ingest_live_document(text_arg, label_arg)
+        print(json.dumps({"status": "ingested", "total_live_documents": total_live}))
+    elif len(sys.argv) >= 3 and sys.argv[1] == "--classify":
         text_to_classify = " ".join(sys.argv[2:])
+        training_data = load_training_data()
 
         clf = TFIDFNaiveBayesClassifier()
-        clf.train(TRAINING_DATA)
+        clf.train(training_data)
 
         pred_label, confidence, all_probs = clf.predict(text_to_classify)
         result = {
             "predicted_class": pred_label,
             "confidence": round(confidence, 4),
             "all_scores": {cls: round(prob, 4) for cls, prob in all_probs},
+            "training_sample_count": len(training_data)
         }
-        print(_json.dumps(result))
+        print(json.dumps(result))
     else:
         run_evaluation()

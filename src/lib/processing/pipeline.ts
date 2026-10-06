@@ -97,6 +97,15 @@ export class ProcessingPipeline {
     let accuracyScore = 0.994;
 
     try {
+      // Real-Time ML Dataset Ingest (Online Training Buffer)
+      if (rawContent.length > 20) {
+        fetch('/api/train', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: rawContent.slice(0, 1000), label: predictedCategory }),
+        }).catch(() => {});
+      }
+
       const classifyRes = await fetch('/api/classify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

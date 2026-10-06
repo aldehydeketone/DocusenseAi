@@ -84,7 +84,24 @@ Extracted Named Entities:
 
 export async function POST(request: NextRequest) {
   try {
+    let body: { text?: string; label?: string } = {};
+    try {
+      body = await request.json();
+    } catch {
+      // empty body
+    }
+
     const scriptPath = path.join(process.cwd(), 'ml', 'train_and_evaluate.py');
+
+    // If real-time document text is provided, ingest it dynamically into ML buffer
+    if (body.text && body.label) {
+      await execFileAsync('python', [scriptPath, '--ingest', body.text, body.label], {
+        timeout: 10000,
+        env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
+      });
+      return Response.json({ status: 'ingested', source: 'realtime-ingest' });
+    }
+
     const { stdout, stderr } = await execFileAsync('python', [scriptPath], {
       timeout: 30000,
       env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
