@@ -101,7 +101,7 @@ BASE_TRAINING_DATA = [
 ]
 
 # Benchmark Test Data (8 Representative Samples)
-TEST_DATA = [
+TEST_DATA [
     ("Executive employment agreement with $310,000 salary, restrictive covenant non-compete for 24 months, and termination severance terms.", "Legal Contract"),
     ("Invoice INV-8821 total amount due $19,500.00 USD. Subtotal $18,000 plus tax, payment due September 30, 2026.", "Financial Invoice"),
     ("Abstract: A comparative evaluation of transformer embeddings on scientific literature QA. Methodology, dataset, and precision-recall benchmark results.", "Research Paper"),
